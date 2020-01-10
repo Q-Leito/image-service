@@ -21,12 +21,4 @@ public class SpringConfig {
         String bucketName = "byk-images";
         return awsS3Client().createBucket(bucketName);
     }
-
-    @Bean
-    public void listAllBuckets() {
-        List<Bucket> buckets = awsS3Client().listAllBuckets();
-        for (Bucket bucket : buckets) {
-            log.info(bucket.getName());
-        }
-    }
 }

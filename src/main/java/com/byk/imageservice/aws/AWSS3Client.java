@@ -53,10 +53,6 @@ public class AWSS3Client {
         return amazonS3.createBucket(bucketName);
     }
 
-    public List<Bucket> listAllBuckets() {
-        return amazonS3.listBuckets();
-    }
-
     public ObjectListing getAllObjectsFromBucket(String bucketName) {
         return amazonS3.listObjects(bucketName);
     }

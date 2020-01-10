@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.byk.imageservice.aws.AWSS3Client;
 import com.byk.imageservice.entity.Image;
+import com.byk.imageservice.entity.Type;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -58,22 +60,36 @@ public class ImageController {
         }
     }
 
-    @PostMapping("/images")
+    @PostMapping("/image")
     @ResponseStatus(value = HttpStatus.CREATED)
     public PutObjectResult addImage(@Validated @RequestBody Image image) {
         final File file = new File(image.getPathName());
         final String filePath = file.getPath();
 
-        try {
-            return this.awsS3Client.uploadOneObjectToBucket(bucket.getName(), filePath, file);
-        } catch (Exception e) {
-            final String reason = "Image with key:" + filePath + " could not be uploaded!";
-            log.warn(reason);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
+        final Optional<String> fileExtension = Optional.of(filePath)
+                .filter(f -> f.contains("."))
+                .map(f -> f.substring(filePath.lastIndexOf(".") + 1));
+
+        final Type type = Type.valueOf(fileExtension.get().toUpperCase());
+
+        switch (type) {
+            case JPG:
+            case PNG:
+                try {
+                    return this.awsS3Client.uploadOneObjectToBucket(bucket.getName(), filePath, file);
+                } catch (Exception e) {
+                    final String reason = "Image with key:" + filePath + " could not be uploaded!";
+                    log.warn(reason);
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
+                }
+            default:
+                final String reason = "Please upload an image with the following extensions; JPG, PNG!";
+                log.error(reason);
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason);
         }
     }
 
-    @PutMapping("/images")
+    @PutMapping("/image")
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public void updateImage(@Validated @RequestBody Image image) {
         final File file = new File(image.getPathName());
@@ -84,7 +100,7 @@ public class ImageController {
         try {
             this.awsS3Client.uploadOneObjectToBucket(bucket.getName(), filePath, file);
         } catch (Exception e) {
-            final String reason = "Image with key:" + " " + " could not be updated!";
+            final String reason = "Image with key:" + filePath + " could not be updated!";
             log.warn(reason);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
         }
