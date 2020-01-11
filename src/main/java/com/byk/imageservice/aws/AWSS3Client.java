@@ -8,13 +8,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -61,8 +59,8 @@ public class AWSS3Client {
         return amazonS3.getObject(bucketName, objectKey);
     }
 
-    public PutObjectResult uploadOneObjectToBucket(String bucketName, String key, File file) {
-        return amazonS3.putObject(bucketName, key, file);
+    public void uploadOneObjectToBucket(String bucketName, String key, File file) {
+        amazonS3.putObject(bucketName, key, file);
     }
 
     public void deleteOneObjectFromBucket(String bucketName, String objectKey) {
