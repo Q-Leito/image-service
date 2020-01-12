@@ -61,7 +61,7 @@ public class ImageController {
 
     @PostMapping("/image/{predefinedTypeName}/")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public void addImage(@PathVariable String predefinedTypeName, @RequestBody OriginalImage originalImage) throws IOException {
+    public void addImage(@PathVariable String predefinedTypeName, @RequestBody OriginalImage originalImage) {
         final File imageFile = new File(originalImage.getPathName());
 
         String fileExtension = originalImage.getPathName().substring(originalImage.getPathName().lastIndexOf(".") + 1);
@@ -162,9 +162,7 @@ public class ImageController {
                 .collect(Collectors.toList());
 
         final String[] directoryStrategy = {""};
-        combineLists.forEach(s -> {
-            directoryStrategy[0] += "/" + s;
-        });
+        combineLists.forEach(s -> directoryStrategy[0] += "/" + s);
 
         return new String[]{fileName.get(0), directoryStrategy[0]};
     }
